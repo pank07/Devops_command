@@ -1,0 +1,119 @@
+Here’s a complete list of **Jenkins commands** to set it up on Ubuntu, install plugins, configure jobs, create pipelines, and use Groovy scripts — all from the terminal.
+---
+## 🔧 PART 1: Install Jenkins on Ubuntu
+```bash
+# 1. Update system
+sudo apt update && sudo apt upgrade -y
+
+# 2. Install Java (Jenkins requires Java)
+sudo apt install openjdk-17-jdk -y
+
+# 3. Add Jenkins key and repo
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+# 4. Install Jenkins
+sudo apt update
+sudo apt install jenkins -y
+
+# 5. Start and enable Jenkins
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+
+# 6. Check Jenkins status
+sudo systemctl status jenkins
+```
+---
+## 🔑 PART 2: Get Initial Admin Password
+```bash
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+Use this password in the web interface at `http://localhost:8080`.
+---
+## 🧱 PART 3: Install Jenkins Plugins via CLI
+```bash
+# 1. Download Jenkins CLI
+wget http://localhost:8080/jnlpJars/jenkins-cli.jar
+
+# 2. Install plugins (example: git + pipeline)
+java -jar jenkins-cli.jar -s http://localhost:8080/ \
+  -auth admin:your_password install-plugin git workflow-aggregator
+
+# 3. Restart Jenkins after installing plugins
+java -jar jenkins-cli.jar -s http://localhost:8080/ \
+  -auth admin:your_password safe-restart
+```
+---
+## 🧪 PART 4: Create Pipeline Job via CLI
+```bash
+# Create a job from a Groovy script (job.xml format)
+java -jar jenkins-cli.jar -s http://localhost:8080/ \
+  -auth admin:your_password create-job my-pipeline < job_config.xml
+```
+You can also use Groovy directly:
+```bash
+# Execute Groovy script to create a pipeline job
+java -jar jenkins-cli.jar -s http://localhost:8080/ \
+  -auth admin:your_password groovy = < my_script.groovy
+```
+---
+## 🔁 PART 5: Pipeline Script Example (Jenkinsfile)
+**`Jenkinsfile`**:
+```groovy
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building...'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying...'
+            }
+        }
+    }
+}
+```
+---
+## ⚙️ PART 6: Sample Groovy Admin Script
+**`my_script.groovy`** (create a simple job):
+```groovy
+import jenkins.model.*
+import hudson.model.*
+
+def jenkins = Jenkins.instance
+
+def jobName = "hello-world"
+def job = jenkins.createProject(FreeStyleProject, jobName)
+job.displayName = "Hello World Job"
+job.description = "Created via Groovy CLI"
+job.save()
+```
+---
+## 🧽 BONUS: Uninstall Jenkins
+
+```bash
+sudo systemctl stop jenkins
+sudo apt remove --purge jenkins -y
+sudo rm -rf /var/lib/jenkins /var/cache/jenkins /var/log/jenkins
+```
+---
+Let me know if you want:
+- A ready-made `job_config.xml` example
+- To auto-trigger builds via GitHub/GitLab
+- Add credentials via CLI
+- Or run this with Docker instead
+
+I can help with those too!

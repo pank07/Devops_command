@@ -1,0 +1,114 @@
+Alright, let's connect **Laptop A to Laptop B using SSH**. This will let you **remotely access Laptop B’s terminal from Laptop A** over the same network (like Wi-Fi or LAN).
+
+---
+
+## 🧩 Scenario:
+
+- **Laptop A** = SSH **client** (the one you're sitting at)
+- **Laptop B** = SSH **server** (the one you're connecting to)
+
+---
+
+## ✅ Step-by-Step: SSH from Laptop A to Laptop B (Linux/Ubuntu)
+
+---
+
+### 🔹 1. Make sure both laptops are on the **same network**
+
+Use `ip a` on each laptop to check if their IPs look like `192.168.x.x`.
+
+---
+
+### 🔹 2. Get Laptop B’s IP address
+
+On **Laptop B**:
+
+```bash
+ip a
+
+```
+
+Look under `wlan0` or `eth0` for something like:
+
+```
+inet 192.168.1.55/24
+
+```
+
+This is the **IP of Laptop B**.
+
+---
+
+### 🔹 3. Install and start SSH server on Laptop B
+
+On **Laptop B**, run:
+
+```bash
+sudo apt update
+sudo apt install openssh-server -y
+sudo systemctl enable ssh
+sudo systemctl start ssh
+
+```
+
+Make sure it's running:
+
+```bash
+sudo systemctl status ssh
+
+```
+
+And optionally allow it through the firewall:
+
+```bash
+sudo ufw allow ssh
+
+```
+
+---
+
+### 🔹 4. From Laptop A, connect via SSH
+
+On **Laptop A**, use:
+
+```bash
+ssh username@192.168.1.55
+
+```
+
+Replace:
+
+- `username` = your Ubuntu user on Laptop B
+- `192.168.1.55` = IP address of Laptop B
+
+---
+
+### 🛡️ 5. (Optional) Use SSH keys for passwordless login
+
+On **Laptop A**:
+
+```bash
+ssh-keygen    # Just hit Enter through prompts
+ssh-copy-id username@192.168.1.55
+
+```
+
+Now you can connect without typing your password every time:
+
+```bash
+ssh username@192.168.1.55
+
+```
+
+---
+
+### ✅ Done! You’re in.
+
+You’ll see something like:
+
+```
+username@laptopB:~$
+
+```
+
+Let me know if either laptop is running **Windows** or **WSL**, and I’ll adjust the steps for that setup.
